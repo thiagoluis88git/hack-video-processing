@@ -1,0 +1,6 @@
+/data/*
+cmd/api/__debug_*
+.env
+.DS_Store
+pkg/.DS_Store
+cover.out
