@@ -73,7 +73,7 @@ func (manager *QueueManager) WriteMessage(
 	// Send processed message to destination queue
 	_, err := manager.outputQueueClient.SendMessage(context.TODO(), &sqs.SendMessageInput{
 		QueueUrl:    aws.String(manager.outputQueueURL),
-		MessageBody: message.Body,
+		MessageBody: message.GetJSON(),
 	})
 
 	if err != nil {
@@ -83,7 +83,7 @@ func (manager *QueueManager) WriteMessage(
 	// Delete message from source queue
 	_, err = manager.inputQueueClient.DeleteMessage(context.TODO(), &sqs.DeleteMessageInput{
 		QueueUrl:      aws.String(manager.inputQueueURL),
-		ReceiptHandle: message.ReceiptHandle,
+		ReceiptHandle: &message.ReceiptHandle,
 	})
 
 	if err != nil {

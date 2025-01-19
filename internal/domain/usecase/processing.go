@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/thiagoluis88git/hack-video-processing/internal/domain/entity"
 	"github.com/thiagoluis88git/hack-video-processing/internal/domain/repository"
 	"github.com/thiagoluis88git/hack-video-processing/pkg/queue"
@@ -12,7 +13,7 @@ import (
 )
 
 type ProcessVideoUseCase interface {
-	Execute(ctx context.Context, message entity.Message) error
+	Execute(ctx context.Context, chanMessage *types.Message) error
 }
 
 type ProcessVideoUseCaseImpl struct {
@@ -33,34 +34,35 @@ func NewProcessVideoUseCase(
 	}
 }
 
-func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, message entity.Message) error {
-	file, err := uc.repo.GetFile(ctx, *message.Body)
+func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *types.Message) error {
+	file, err := uc.repo.GetFile(ctx, *chanMessage.Body)
 
 	if err != nil {
 		return responses.Wrap("use case: error when getting file", err)
 	}
 
-	err = uc.videProcess.ExtractFrames(file.Name, *message.Body)
+	err = uc.videProcess.ExtractFrames(file.Name, *chanMessage.Body)
 
 	if err != nil {
 		return responses.Wrap("use case: error when extracting frames", err)
 	}
 
-	zippedFile, err := uc.videProcess.ZipFiles(fmt.Sprintf("output-%v", *message.Body), "files.zip")
+	zippedFile, err := uc.videProcess.ZipFiles(fmt.Sprintf("output-%v", *chanMessage.Body), "files.zip")
 
 	if err != nil {
 		return responses.Wrap("use case: error when zipping file", err)
 	}
 
-	zipURL, err := uc.repo.UploadFile(ctx, fmt.Sprintf("%v.zip", *message.Body), zippedFile, "arquivo ZIP")
+	zipURL, err := uc.repo.UploadFile(ctx, fmt.Sprintf("%v.zip", *chanMessage.Body), zippedFile, "arquivo ZIP")
 
 	if err != nil {
 		return responses.Wrap("use case: error when uploading zip file", err)
 	}
 
 	newMessage := entity.Message{
-		Body:          &zipURL,
-		ReceiptHandle: message.ReceiptHandle,
+		ZippedURL:     zipURL,
+		TrackingID:    *chanMessage.Body,
+		ReceiptHandle: *chanMessage.ReceiptHandle,
 	}
 
 	uc.queueManager.WriteMessage(newMessage)
