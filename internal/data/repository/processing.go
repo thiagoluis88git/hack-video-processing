@@ -31,3 +31,13 @@ func (repo *ProcessingRepositoryImpl) GetFile(ctx context.Context, key string) (
 		Name: file.Name,
 	}, nil
 }
+
+func (repo *ProcessingRepositoryImpl) UploadFile(ctx context.Context, key string, data []byte, description string) (string, error) {
+	zipURL, err := repo.ds.UploadFile(ctx, key, data, description)
+
+	if err != nil {
+		return "", responses.Wrap("repository: error when uploading s3 file", err)
+	}
+
+	return zipURL, nil
+}

@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/thiagoluis88git/hack-video-processing/internal/domain/entity"
 	"github.com/thiagoluis88git/hack-video-processing/pkg/environment"
 )
 
@@ -67,7 +68,7 @@ func (manager *QueueManager) PollMessages(
 }
 
 func (manager *QueueManager) WriteMessage(
-	message *types.Message,
+	message entity.Message,
 ) {
 	// Send processed message to destination queue
 	_, err := manager.outputQueueClient.SendMessage(context.TODO(), &sqs.SendMessageInput{
