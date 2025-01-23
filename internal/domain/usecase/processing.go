@@ -47,13 +47,14 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 		return responses.Wrap("use case: error when extracting frames", err)
 	}
 
-	zippedFile, err := uc.videProcess.ZipFiles(fmt.Sprintf("output-%v", *chanMessage.Body), "files.zip")
+	zipFileName := fmt.Sprintf("%v.zip", *chanMessage.Body)
+	zippedFile, err := uc.videProcess.ZipFiles(*chanMessage.Body, zipFileName)
 
 	if err != nil {
 		return responses.Wrap("use case: error when zipping file", err)
 	}
 
-	zipURL, err := uc.repo.UploadFile(ctx, fmt.Sprintf("%v.zip", *chanMessage.Body), zippedFile, "arquivo ZIP")
+	zipURL, err := uc.repo.UploadFile(ctx, zipFileName, zippedFile, "arquivo ZIP")
 
 	if err != nil {
 		return responses.Wrap("use case: error when uploading zip file", err)

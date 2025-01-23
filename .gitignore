@@ -4,3 +4,4 @@ cmd/api/__debug_*
 .DS_Store
 pkg/.DS_Store
 cover.out
+.DS_Store
