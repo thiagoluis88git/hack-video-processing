@@ -57,11 +57,7 @@ func (service *VideoProcessServiceImpl) ZipFiles(sourceDir string, zipFile strin
 		return []byte{}, err
 	}
 
-	defer zipFileHandle.Close()
-
 	zipWriter := zip.NewWriter(zipFileHandle)
-
-	defer zipWriter.Close()
 
 	err = filepath.Walk(sourceDir, func(file string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -90,7 +86,21 @@ func (service *VideoProcessServiceImpl) ZipFiles(sourceDir string, zipFile strin
 		return []byte{}, responses.Wrap("video processing: error when zipping files", err)
 	}
 
-	data, err := io.ReadAll(zipFileHandle)
+	err = zipWriter.Close()
+
+	if err != nil {
+		return []byte{}, responses.Wrap("video processing: error when closing zipWriter", err)
+	}
+
+	openZipFile, err := os.Open(zipFile)
+
+	if err != nil {
+		return []byte{}, responses.Wrap("video processing: error when openning", err)
+	}
+
+	defer openZipFile.Close()
+
+	data, err := io.ReadAll(openZipFile)
 
 	if err != nil {
 		return []byte{}, responses.Wrap("video processing: error when reading data from file", err)
