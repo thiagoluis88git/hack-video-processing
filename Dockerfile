@@ -30,7 +30,7 @@ WORKDIR /app
 COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=build-stage /VideoProcessing /VideoProcessing
-COPY --from=build-stage /go/src/docs/ /docs/
+# COPY --from=build-stage /go/src/docs/ /docs/
 
 EXPOSE 3210 3211
 
