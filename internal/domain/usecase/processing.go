@@ -38,29 +38,41 @@ func NewProcessVideoUseCase(
 func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *types.Message) error {
 	trackingID := *chanMessage.Body
 
+	// Gerar um endpoint para presigned url para PUT
+	// Criar um outro servico para enviar a URL com o arquivo lá dentro
+	// A cada erro, enviar para a fila de erros com a mensagem do erro
+
 	file, err := uc.repo.GetFile(ctx, trackingID)
 
 	if err != nil {
-		return responses.Wrap("use case: error when getting file", err)
+		errorProccess := responses.Wrap("use case: error when getting file", err)
+		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		return errorProccess
 	}
 
 	err = uc.videProcess.ExtractFrames(file.Name, trackingID)
 
 	if err != nil {
-		return responses.Wrap("use case: error when extracting frames", err)
+		errorProccess := responses.Wrap("use case: error when extracting frames", err)
+		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		return errorProccess
 	}
 
 	zipFileName := fmt.Sprintf("%v.zip", trackingID)
 	zippedFile, err := uc.videProcess.ZipFiles(trackingID, zipFileName)
 
 	if err != nil {
-		return responses.Wrap("use case: error when zipping file", err)
+		errorProccess := responses.Wrap("use case: error when zipping file", err)
+		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		return errorProccess
 	}
 
 	zipURL, err := uc.repo.UploadFile(ctx, zipFileName, zippedFile, "arquivo ZIP")
 
 	if err != nil {
-		return responses.Wrap("use case: error when uploading zip file", err)
+		errorProccess := responses.Wrap("use case: error when uploading zip file", err)
+		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		return errorProccess
 	}
 
 	newMessage := entity.Message{
@@ -97,4 +109,13 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 	}
 
 	return nil
+}
+
+func (uc *ProcessVideoUseCaseImpl) writeErrorMessage(trackingID string, message string) {
+	newMessage := entity.ErrorMessage{
+		TrackingID: trackingID,
+		Message:    message,
+	}
+
+	uc.queueManager.WriteErrorMessage(newMessage)
 }

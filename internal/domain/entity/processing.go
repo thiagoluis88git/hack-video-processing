@@ -17,7 +17,23 @@ type Message struct {
 	ReceiptHandle string `json:"receiptHandle"`
 }
 
+type ErrorMessage struct {
+	Message    string `json:"errorMessage"`
+	TrackingID string `json:"trackingID"`
+}
+
 func (m *Message) GetJSON() *string {
+	b, err := json.Marshal(m)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	result := string(b)
+	return &result
+}
+
+func (m *ErrorMessage) GetJSON() *string {
 	b, err := json.Marshal(m)
 
 	if err != nil {
