@@ -25,16 +25,6 @@ RUN \
   -ldflags "-s -d -w" \
   -o /VideoProcessing cmd/api/main.go
 
-FROM scratch
-
-WORKDIR /app
-
-# Copy Certificate
-COPY --from=build-stage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-COPY --from=build-stage /VideoProcessing /VideoProcessing
-COPY --from=build-stage /usr/bin/ /usr/bin/
-
 EXPOSE 3210 3211
 
 ENTRYPOINT ["/VideoProcessing"]
