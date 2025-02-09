@@ -16,7 +16,8 @@ var (
 
 const (
 	VideoProcessingInputQueue = "VIDEO_PROCESSING_INPUT_QUEUE"
-	VideoProcessedOutpuQueue  = "VIDEO_PROCESSED_OUTPUT_QUEUE"
+	VideoProcessedOutputQueue = "VIDEO_PROCESSED_OUTPUT_QUEUE"
+	VideoProcessedErrorQueue  = "VIDEO_PROCESSED_ERROR_QUEUE"
 	Bucket                    = "AWS_S3_BUCKET"
 	BucketZip                 = "AWS_S3_BUCKET_ZIP"
 	Region                    = "AWS_REGION"
@@ -25,6 +26,7 @@ const (
 type Environment struct {
 	VideoProcessingInputQueue string
 	VideoProcessedOutputQueue string
+	VideoProcessedErrorQueue  string
 	Bucket                    string
 	BucketZip                 string
 	Region                    string
@@ -43,13 +45,15 @@ func LoadEnvironmentVariables() Environment {
 
 	region := getEnvironmentVariable(Region)
 	videoProcessingInputQueue := getEnvironmentVariable(VideoProcessingInputQueue)
-	videoProcessedOutputQueue := getEnvironmentVariable(VideoProcessedOutpuQueue)
+	videoProcessedOutputQueue := getEnvironmentVariable(VideoProcessedOutputQueue)
+	videoProcessedErrorQueue := getEnvironmentVariable(VideoProcessedErrorQueue)
 	bucket := getEnvironmentVariable(Bucket)
 	bucketZip := getEnvironmentVariable(BucketZip)
 
 	return Environment{
 		VideoProcessingInputQueue: videoProcessingInputQueue,
 		VideoProcessedOutputQueue: videoProcessedOutputQueue,
+		VideoProcessedErrorQueue:  videoProcessedErrorQueue,
 		Region:                    region,
 		Bucket:                    bucket,
 		BucketZip:                 bucketZip,

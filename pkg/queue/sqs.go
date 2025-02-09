@@ -23,6 +23,8 @@ type QueueManager struct {
 	outputQueueClient *sqs.Client
 	inputQueueURL     string
 	inputQueueClient  *sqs.Client
+	errorQueueURL     string
+	errorQueueClient  *sqs.Client
 }
 
 func ConfigQueueManager(environment environment.Environment) QueueManager {
@@ -35,12 +37,15 @@ func ConfigQueueManager(environment environment.Environment) QueueManager {
 	// Create SQS clients
 	inputQueueClient := sqs.NewFromConfig(cfg)
 	outputQueueClient := sqs.NewFromConfig(cfg)
+	errorQueueClient := sqs.NewFromConfig(cfg)
 
 	return QueueManager{
 		inputQueueURL:     environment.VideoProcessingInputQueue,
 		outputQueueURL:    environment.VideoProcessedOutputQueue,
+		errorQueueURL:     environment.VideoProcessedErrorQueue,
 		outputQueueClient: outputQueueClient,
 		inputQueueClient:  inputQueueClient,
+		errorQueueClient:  errorQueueClient,
 	}
 }
 
@@ -91,4 +96,20 @@ func (manager *QueueManager) WriteMessage(
 	}
 
 	fmt.Println("Message processed and sent to destination queue")
+}
+
+func (manager *QueueManager) WriteErrorMessage(
+	message entity.ErrorMessage,
+) {
+	// Send processed message to destination queue
+	_, err := manager.errorQueueClient.SendMessage(context.TODO(), &sqs.SendMessageInput{
+		QueueUrl:    aws.String(manager.errorQueueURL),
+		MessageBody: message.GetJSON(),
+	})
+
+	if err != nil {
+		log.Fatalf("failed to send message, %v", err)
+	}
+
+	fmt.Println("Message processed and sent to error queue")
 }

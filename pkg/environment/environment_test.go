@@ -10,8 +10,9 @@ import (
 
 func setup() {
 	os.Setenv(environment.Region, "Region")
-	os.Setenv(environment.VideoProcessedOutpuQueue, "Output")
 	os.Setenv(environment.VideoProcessingInputQueue, "Input")
+	os.Setenv(environment.VideoProcessedOutputQueue, "Output")
+	os.Setenv(environment.VideoProcessedErrorQueue, "Error")
 	os.Setenv(environment.Bucket, "S3Bucket")
 	os.Setenv(environment.BucketZip, "S3Bucket-ZIP")
 }
