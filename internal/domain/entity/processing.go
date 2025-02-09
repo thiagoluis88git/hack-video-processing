@@ -18,7 +18,8 @@ type Message struct {
 }
 
 type ErrorMessage struct {
-	Message string `json:"errorMessage"`
+	Message    string `json:"errorMessage"`
+	TrackingID string `json:"trackingID"`
 }
 
 func (m *Message) GetJSON() *string {
