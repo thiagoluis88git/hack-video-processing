@@ -2,11 +2,8 @@ package videoprocess
 
 import (
 	"archive/zip"
-	"encoding/json"
-	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/thiagoluis88git/hack-video-processing/pkg/responses"
@@ -31,13 +28,13 @@ func NewVideoProcess() VideoProcessService {
 }
 
 func (service *VideoProcessServiceImpl) ExtractFrames(videoFile string, prefixName string) error {
-	maxFrames, err := getFrameCount(videoFile)
+	// maxFrames, err := getFrameCount(videoFile)
 
-	if err != nil {
-		return responses.Wrap("video processing: error when getting max frames", err)
-	}
+	// if err != nil {
+	// 	return responses.Wrap("video processing: error when getting max frames", err)
+	// }
 
-	fmt.Printf("Max quantity: %v\n", maxFrames)
+	// fmt.Printf("Max quantity: %v\n", maxFrames)
 
 	if err := os.MkdirAll(prefixName, os.ModePerm); err != nil {
 		return responses.Wrap("video processing: error when creating folder", err)
@@ -109,22 +106,22 @@ func (service *VideoProcessServiceImpl) ZipFiles(sourceDir string, zipFile strin
 	return data, nil
 }
 
-func getFrameCount(videoFile string) (string, error) {
-	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames", "-of", "json", videoFile)
+// func getFrameCount(videoFile string) (string, error) {
+// 	cmd := exec.Command("ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames", "-of", "json", videoFile)
 
-	output, err := cmd.Output()
-	if err != nil {
-		return "", err
-	}
+// 	output, err := cmd.Output()
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	var ffProbeOutput FFProbeOutput
-	if err := json.Unmarshal(output, &ffProbeOutput); err != nil {
-		return "", err
-	}
+// 	var ffProbeOutput FFProbeOutput
+// 	if err := json.Unmarshal(output, &ffProbeOutput); err != nil {
+// 		return "", err
+// 	}
 
-	if len(ffProbeOutput.Stream) > 0 {
-		return ffProbeOutput.Stream[0].NBFrames, nil
-	}
+// 	if len(ffProbeOutput.Stream) > 0 {
+// 		return ffProbeOutput.Stream[0].NBFrames, nil
+// 	}
 
-	return "0", nil // If no frames found
-}
+// 	return "0", nil // If no frames found
+// }
