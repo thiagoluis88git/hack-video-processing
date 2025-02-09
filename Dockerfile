@@ -5,7 +5,7 @@ ENV PATH="/go/src:${PATH}"
 
 # Install Certificate
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
-RUN apt-get update && apt install ffmpeg -y && \
+RUN apt-get update && apt-get install ffmpeg -y && \
     ffmpeg -version && \
     ffprobe -version
 
