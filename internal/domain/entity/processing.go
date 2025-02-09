@@ -18,8 +18,9 @@ type Message struct {
 }
 
 type ErrorMessage struct {
-	Message    string `json:"errorMessage"`
-	TrackingID string `json:"trackingID"`
+	Message            string `json:"errorMessage"`
+	TrackingID         string `json:"trackingID"`
+	InputReceiptHandle string `json:"inputReceiptHandle"`
 }
 
 func (m *Message) GetJSON() *string {
