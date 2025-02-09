@@ -46,7 +46,7 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 
 	if err != nil {
 		errorProccess := responses.Wrap("use case: error when getting file", err)
-		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		uc.writeErrorMessage(trackingID, errorProccess.Error(), *chanMessage.ReceiptHandle)
 		return errorProccess
 	}
 
@@ -54,7 +54,7 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 
 	if err != nil {
 		errorProccess := responses.Wrap("use case: error when extracting frames", err)
-		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		uc.writeErrorMessage(trackingID, errorProccess.Error(), *chanMessage.ReceiptHandle)
 		return errorProccess
 	}
 
@@ -63,7 +63,7 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 
 	if err != nil {
 		errorProccess := responses.Wrap("use case: error when zipping file", err)
-		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		uc.writeErrorMessage(trackingID, errorProccess.Error(), *chanMessage.ReceiptHandle)
 		return errorProccess
 	}
 
@@ -71,7 +71,7 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 
 	if err != nil {
 		errorProccess := responses.Wrap("use case: error when uploading zip file", err)
-		uc.writeErrorMessage(trackingID, errorProccess.Error())
+		uc.writeErrorMessage(trackingID, errorProccess.Error(), *chanMessage.ReceiptHandle)
 		return errorProccess
 	}
 
@@ -111,10 +111,11 @@ func (uc *ProcessVideoUseCaseImpl) Execute(ctx context.Context, chanMessage *typ
 	return nil
 }
 
-func (uc *ProcessVideoUseCaseImpl) writeErrorMessage(trackingID string, message string) {
+func (uc *ProcessVideoUseCaseImpl) writeErrorMessage(trackingID string, message string, inputReceiptHandle string) {
 	newMessage := entity.ErrorMessage{
-		TrackingID: trackingID,
-		Message:    message,
+		TrackingID:         trackingID,
+		Message:            message,
+		InputReceiptHandle: inputReceiptHandle,
 	}
 
 	uc.queueManager.WriteErrorMessage(newMessage)
